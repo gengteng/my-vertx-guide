@@ -46,7 +46,7 @@ MyFunction increment = new MyFunction () {
     }
 };
 ```
-&emsp;&emsp;这个 `increment` 变量（或者叫*对象*）的 `exec` 就是我们要传递的函数，我们可以通过传递 `increment` 变量来传递这个函数。现在，在*Java 8*中，你可以不用修改接口定义，直接这样写：
+&emsp;&emsp;这个 `increment` 变量（或者叫*对象*）的 `exec` 就是我们要传递的函数，我们可以通过传递 `increment` 变量来传递这个函数。现在，在*Java 8*中，你可以不用修改接口定义，直接用 *Lambda表达式* 这样写：
 ```
 MyFunction increment = i -> i + 1;
 ```
