@@ -1,0 +1,8 @@
+{
+    "title" : "Eclipse Vert.x与异步编程模型初探",
+    "author" : "耿腾",
+    "description" : "",
+    "language" : "zh-hans",
+    "gitbook" : ">=3.2.3",
+    "root" : "."
+}
