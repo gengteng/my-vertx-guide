@@ -6,7 +6,7 @@
 
 &emsp;&emsp;首先，我想定义一下“多个 *Verticle*”。我们这里说的“多个 *Verticle*”指的是我们实现的多个不同的 *Verticle* 类，区别于同一个 *Verticle* 类部署成多个实例——是的，这一点我前面没有讲，一个 *Verticle* 是单线程的，但是如果某个 *Verticle* 类对并发有更高的要求，想利用多核 CPU 的话，可以像这样部署：
 
-```
+```java
 vertx.deployVerticle(MyHttpServerVerticle.class.getName(), 
     new DeploymentOptions().setInstances(8));
 ```

@@ -1,7 +1,7 @@
 # 3.2 Hello, Vert.x 与异步无阻塞 API
 
 &emsp;&emsp;讲完了茴香豆的茴字的几种写法，我们来正式跟 *Vert.x* 打个招呼。下面是参考官网主页上的例子写的一段样例代码：
-```
+```java
 import io.vertx.core.AbstractVerticle;
 
 public class MyHttpServerVerticle extends AbstractVerticle {
@@ -32,8 +32,9 @@ public class MyHttpServerVerticle extends AbstractVerticle {
     }
 }
 ```
+
 > 注：*pom.xml* 文件中要添加依赖：
-> ```
+> ```xml
 > <dependency>
 >     <groupId>io.vertx</groupId>
 >     <artifactId>vertx-core</artifactId>
@@ -48,15 +49,16 @@ public class MyHttpServerVerticle extends AbstractVerticle {
 &emsp;&emsp;*Vert.x* 中的基本模块叫做 *Verticle*，最常见的用法是定义一个类继承 `AbstractVerticle`，然后重载它的 `start` 方法，有些时候还需要重载 `stop` 方法。在一个 *Verticle* 实例被 *部署*（*deploy*）时，它的 `start` 方法被调用一次，在它被 *反部署*（*undeploy*，或者叫 *撤销*）时，它的 `stop` 方法被调用一次。
 
 &emsp;&emsp;好的，现在我们 *Verticle* 已经写好了，应该怎么部署呢？首先，我们需要实例化一个 `Vertx` 对象，像这样：
-```
+```java
 Vertx vertx = Vertx.vertx();
 ```
 &emsp;&emsp;通常一个程序只需要实例化一个 `Vertx` 对象。然后，像这样部署一个Verticle：
-```
+```java
 vertx.deployVerticle(MyHttpServerVerticle.class.getName());
 ```
 &emsp;&emsp;你还可以用这个 `Vertx` 实例部署更多 *Verticle* 类。如果你想获得部署结果，可以这样写：
-```
+
+```java
 vertx.deployVerticle(MyHttpServerVerticle.class.getName(), ar -> {
     if (ar.succeeded()) {
         System.out.println(ar.result());
@@ -65,8 +67,8 @@ vertx.deployVerticle(MyHttpServerVerticle.class.getName(), ar -> {
     }
 });
 ```
-&emsp;&emsp;这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`，`AsyncResult` 对象代表了一个异步操作的结果，在异步操作成功时，它会保存特定类型的结果，我们可以通过 `result` 方法获取这个结果；在异步操作失败时，它会保存导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
-&emsp;&emsp;在上面的代码中，如果部署成功，部署生成的 `deploymentID` 会被打印出来，如果部署失败，会打印异常的描述信息。如果端口没被占用，我们的网站应该就发布成功了，在浏览器里打开
+&emsp;&emsp;这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`。`AsyncResult<T>` 对象代表了一个异步操作的结果（以下简称 *异步结果*），在异步操作完成时，它会作为 *事件* 的参数被传递给我们编写的 *处理函数* 处理；如果异步操作成功，它会保存类型为 `T` 的结果，我们可以通过 `result` 方法获取这个结果；如果异步操作失败，它会保存导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
+&emsp;&emsp;在上面的代码中，如果部署成功，部署生成的 `deploymentID` 会被打印出来，如果部署失败，异常的描述信息会被打印出来。如果端口没被占用，我们的网站应该就发布成功了，在浏览器里打开
 
 > http://localhost:8080/
 

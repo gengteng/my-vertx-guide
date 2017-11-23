@@ -4,7 +4,7 @@
 
 在使用 *Vert.x* 的异步无阻塞 API 时，如果我们要保证一系列操作的执行顺序，通常不能像一般的框架那样简单的依次调用，而是依次把要调用的方法放在前一个方法的事件处理函数中，用 *回调函数* 用的比较多的同事一定遇到这种情况：
 
-```
+```java
 String filePath = "X:\\path\\to\\file";
 String backupPath = "X:\\path\\to\\backup\\folder";
 Buffer buffer = Buffer.buffer("file content");
@@ -14,7 +14,7 @@ vertx.fileSystem().writeFile(filePath, buffer, write -> {
         vertx.createNetClient().connect(1234, "localhost", connect -> {
             if (connect.succeeded()) {
                 connect.result().sendFile(filePath, send -> {
-                    connect.result().close();
+                    connect.result().close(); // 关闭不再使用的Socket
                     if (send.succeeded()) {
                         vertx.fileSystem().copy(filePath, backupPath, copy -> {
                             if (copy.succeeded()) {
@@ -54,15 +54,78 @@ vertx.fileSystem().writeFile(filePath, buffer, write -> {
 
 &emsp;&emsp;其中，除 `Future` 外的其他三种都需要额外增加依赖，像 *Kotlin coroutine* 这个方法还是利用了 *Kotlin* 刚发布的新特性，稳定性、可靠性各方面还有待检验。我今天只重点介绍使用 Vert.x 核心中提供的 `Future` 来解决回调地狱的方法，大家如果对其它的方法感兴趣可以找官网的文档和例子看一下。
 
-&emsp;&emsp;回到那个回调地狱的例子里，我们思考一下，如果让我们自己解决这个问题应该怎么办。
+&emsp;&emsp;我们直接看 Future 的定义，下面只列出与我们要将的内容有关的部分：
 
-&emsp;&emsp;...
+```java
+public interface Future<T> extends AsyncResult<T>, Handler<AsyncResult<T>> {
 
-&emsp;&emsp;Future 是用来存储一个异步API调用结果的对象。它有未完成、已完成两种状态，其中已完成状态又包括成功和失败两种状态。在成功状态下，该对象保存调用结果，它可能是一个连接成功得到的Socket，也可能是一个打开成功得到的文件句柄；在失败状态下，该对象保存导致失败的异常；同时它还允许创建者设置一个 *回调函数* ，该回调函数会在它被完成时调用。
+    // 用结果 result 将这个未完成的 AsyncResult<T> 设为成功
+    void complete(T result);
 
-使用 Future 将回调地狱初步改造为：
+    // 用异常 cause 将这个未完成的 AsyncResult<T> 设为失败
+    void fail(Throwable cause);
 
+    // 设置该 Future 对象被完成时应该调用的处理函数
+    Future<T> setHandler(Handler<AsyncResult<T>> handler);
+
+    // 其他方法
+}
 ```
+
+&emsp;&emsp;它是一个泛型接口，继承自 *异步结果* `AsyncResult<T>` 和 *异步结果处理函数* `Handler<AsyncResult<T>>`；我们前面介绍过 *异步结果* 对象可以保存异步操作的状态（未完成、成功或失败），以及提供结果和异常的获取方法，`Future<T>` 继承自它，表明 `Future<T>` 也有这些特性；同时，不同与 *异步结果* `AsyncResult<T>` 只能读取状态和结果，它还提供了 `complete` 方法和 `fail` 方法，使其可以从外部被完成；但是，它同时还继承自 *异步结果处理函数* `Handler<AsyncResult<T>>`，是说一个 `Future<T>` 对象同时还是一个函数？它作为一个函数，要处理的这个 *异步结果* `AsyncResult<T>` 又是哪来的呢？
+
+我在 `Future<T>` 接口的实现 `FutureImpl<T>` 类里找到了这个：
+
+```java
+@Override
+  public void handle(AsyncResult<T> asyncResult) {
+    if (asyncResult.succeeded()) {
+      complete(asyncResult.result());
+    } else {
+      fail(asyncResult.cause());
+    }
+  }
+```
+&emsp;&emsp;没错，这里是它作为一个 *处理函数* `Handler<AsyncResult<T>>` 的实现，当它被调用时，就是在处理另一个 *异步结果* `AsyncResult<T>`，用另一个 *异步结果* 的状态和值来完成作为 *异步结果* `AsyncResult<T>` 的自己。
+
+&emsp;&emsp;我们再看一下刚刚在 *回调地狱* 里用的那几个 *Vert.x* 提供的 API 的定义：
+```java
+// 写一段内容到新文件里
+FileSystem writeFile(String path, Buffer data, Handler<AsyncResult<Void>> handler);
+
+// 建立与某个地址的Socket连接
+NetClient connect(int port, String host, Handler<AsyncResult<NetSocket>> connectHandler);
+
+// 使用Socket发送一个文件
+NetSocket sendFile(String filename, Handler<AsyncResult<Void>> resultHandler)
+
+// 复制一个文件到另一个位置
+FileSystem copy(String from, String to, Handler<AsyncResult<Void>> handler);
+
+// 删除一个文件
+FileSystem delete(String path, Handler<AsyncResult<Void>> handler);
+```
+&emsp;&emsp;我们还可以继续罗列更多的 *Vert.x* 提供的 API，只要可以，它们的最后一个参数总是 `Handler<AsyncResult<T>>`，所以我们按照文档中的方法实例化一个Future变量：
+```java
+Future<Void> futureWrite = Future.future();
+```
+&emsp;&emsp;然后，我们调用那个写文件的方法，不过不再使用 *Lambda表达式*，而是把 `futureWrite` 放到原来 *Lambda表达式* 的位置：
+```java
+vertx.fileSystem().writeFile(filePath, buffer, futureWrite);
+```
+&emsp;&emsp;如果你还记得 `Future<T>` 继承自 `Handler<AsyncResult<T>>` ，应该不会惊讶于这样写。然后，我们给 `futureWrite` 设置一个它在完成时应该调用的 *处理函数*：
+```java
+futureWrite.setHandler(ar -> {
+    if (ar.succeeded()) {
+        // success
+    } else {
+        // error
+    }
+});
+```
+&emsp;&emsp;那么，我们可以继续使用 Future 将上面的整个回调地狱改造成下面这样：
+
+```java
 Future<Void> futureWrite = Future.future();
 Future<NetSocket> futureConnect = Future.future();
 Future<Void> futureSend = Future.future();
@@ -88,7 +151,7 @@ futureConnect.setHandler(ar -> {
 });
 
 futureSend.setHandler(ar -> {
-    futureConnect.result().close();
+    futureConnect.result().close(); // 关闭不再使用的Socket
     if (ar.succeeded()) {
         vertx.fileSystem().copy(filePath, backupPath, futureCopy);
     } else {
@@ -112,14 +175,14 @@ futureDelete.setHandler(ar -> {
     }
 });
 ```
-&emsp;&emsp;这样代码就不会随着业务流程长度而无限制缩进了。不过这样还存在一些问题：
+&emsp;&emsp;这样代码就不会随着业务流程长度而无限制缩进了，看起来整齐多了。不过这样还存在一些问题：
 
-> 1. 颠倒两个代码块的顺序，该程序仍然是可以运行的，这看似灵活，但是缺乏一个顺序上的约束更容易产生混乱的代码；  
-> 2. 异常处理都是重复代码。
+> 1. 颠倒两个代码块的顺序，该程序仍然是可以运行的，这样一来没有顺序上的约束，很容易产生混乱的代码；  
+> 2. 异常处理存在大量重复代码。
 
 &emsp;&emsp;所以，我们使用 `Future` 的 `compose` 方法再次重构这部分代码：
 
-```
+```java
 Future<Void> futureWrite = Future.future();
 Future<NetSocket> futureConnect = Future.future();
 Future<Void> futureSend = Future.future();
@@ -133,7 +196,7 @@ futureWrite.compose(v -> {
 }, futureConnect).compose(socket -> {
     socket.sendFile(filePath, futureSend);
 }, futureSend).compose(v -> {
-    futureConnect.result().close();
+    futureConnect.result().close(); // 关闭不再使用的Socket
     vertx.fileSystem().copy(filePath, backupPath, futureCopy);
 }, futureCopy).compose(v -> {
     vertx.fileSystem().delete(filePath, futureDelete);
@@ -141,11 +204,14 @@ futureWrite.compose(v -> {
     if (ar.succeeded()) {
         logger.info("Hello, future compose!!!");
     } else {
+        if (futureConnect.succeeded()) {
+            futureConnect.result().close(); // 关闭不再使用的Socket
+        }
         logger.error(ar.cause().getMessage());
     }
 });
 ```
-&emsp;&emsp;除了最后一个 *回调函数* ，前面的所有 *回调函数* 拿到的并不是一个 `AsyncResult<T>` 对象，而是我们期望的结果；也就是说它们只处理上一部成功的情况，失败的异常只需要在最后一步处理；这是不是有点像传统的 `try catch` 结构。 
+&emsp;&emsp;除了最后一个 *回调函数* ，前面的所有 *回调函数* 拿到的并不是一个 `AsyncResult<T>` 对象，而是我们期望的结果；也就是说它们只处理上一步成功的情况，失败的异常只需要在最后一步处理；这是不是有点像传统的 `try catch` 结构。  
 &emsp;&emsp;好的，这几乎就是使用 `Future` 改造回调地狱的终极解决方案了，`compose` 方法还有另外一个重载实现，有兴趣的同事可以自己尝试写写看。
 
 
