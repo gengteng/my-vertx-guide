@@ -107,7 +107,7 @@ FileSystem copy(String from, String to, Handler<AsyncResult<Void>> handler);
 // 删除一个文件
 FileSystem delete(String path, Handler<AsyncResult<Void>> handler);
 ```
-&emsp;&emsp;我们还可以继续罗列更多的 *Vert.x* 提供的 API，只要可以，它们的最后一个参数总是 `Handler<AsyncResult<T>>`，所以我们按照文档中的方法实例化一个Future变量：
+&emsp;&emsp;我们还可以继续罗列更多的 *Vert.x* 提供的 API，只要可以，它们的最后一个参数总是 `Handler<AsyncResult<T>>`，所以我们按照文档中的方法实例化一个 `Future` 对象：
 ```java
 Future<Void> futureWrite = Future.future();
 ```
@@ -115,7 +115,7 @@ Future<Void> futureWrite = Future.future();
 ```java
 vertx.fileSystem().writeFile(filePath, buffer, futureWrite);
 ```
-&emsp;&emsp;如果你还记得 `Future<T>` 继承自 `Handler<AsyncResult<T>>` ，应该不会惊讶于这样写。然后，我们给 `futureWrite` 设置一个它在完成时应该调用的 *处理函数*：
+&emsp;&emsp;如果你还记得 `Future<T>` 继承自 `Handler<AsyncResult<T>>` ，应该不会惊讶于这样的写法。然后，我们给 `futureWrite` 设置一个它在完成时应该调用的 *处理函数*：
 ```java
 futureWrite.setHandler(ar -> {
     if (ar.succeeded()) {
@@ -125,7 +125,9 @@ futureWrite.setHandler(ar -> {
     }
 });
 ```
-&emsp;&emsp;那么，我们可以继续使用 Future 将上面的整个回调地狱改造成下面这样：
+&emsp;&emsp;这样就实现了读取文件后 `futureWrite` 对象被完成，`futureWrite` 对象的 *处理函数* 被调用的逻辑。
+
+&emsp;&emsp;这样真的有助于解决回调地狱吗？我们可以尝试继续使用这种方法改造上面的回调地狱：
 
 ```java
 Future<Void> futureWrite = Future.future();
@@ -177,7 +179,7 @@ futureDelete.setHandler(ar -> {
     }
 });
 ```
-&emsp;&emsp;这样代码就不会随着业务流程长度而无限制缩进了，看起来整齐多了。不过这样还存在一些问题：
+&emsp;&emsp;看起来效果还不错，整齐多了，代码也不会随着业务流程长度而无限制缩进了。不过这样还是存在一些问题：
 
 > 1. 颠倒两个代码块的顺序，该程序仍然是可以运行的，这样一来没有顺序上的约束，很容易产生混乱的代码；  
 > 2. 异常处理存在大量重复代码。
