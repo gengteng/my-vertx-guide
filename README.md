@@ -8,8 +8,8 @@
 
 &emsp;&emsp;我主要从以下三个方面进行分享：
     
-* [什么是 *Vert.x* ?](chapter1/README.md)
-* [为什么要用 *Vert.x* ?](chapter2/README.md)
-* [怎么使用 *Vert.x* ?](chapter3/README.md)
+> * [什么是 *Vert.x* ?](chapter1/README.md)
+> * [为什么要用 *Vert.x* ?](chapter2/README.md)
+> * [怎么使用 *Vert.x* ?](chapter3/README.md)
 
 &emsp;&emsp;我觉得枯燥的名词定义和原理阐述并不能引起大家的兴趣，只有当我们真正去编码，去调试运行时，产生了疑惑，才会真正对那些高大上的名词和背后高效运行的原理感兴趣。所以，最后一条是我要讲的重点，可以让大家听完就可以直接用 *Vert.x* 进行开发；前面两条我只会简单带过，在最后留下一些[**学习资料**](chapter4/README.md)，如果你对这些感兴趣，可以自行查阅。

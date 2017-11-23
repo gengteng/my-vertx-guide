@@ -31,7 +31,7 @@ C#：
 ```
 (a, b) => a + b;
 ```
-&emsp;&emsp;*Lambda表达式* 在 *Python*、*JavaScript*、*Lua* 等弱类型语言中可以直接作为一个普通变量，在*C++*中可以作为特定类型的函数指针（使用auto作为指针变量的类型即可自动推断类型），在 *C#* 可以作为一个特定类型的委托变量，而在 *Java 8* 中，*Lambda表达式* 实际上一个复合特定条件的 *接口* 的实现。其实在过去版本的 *Java* 中，如果我们想像传递变量那样传递一个 *函数* （或者叫 *方法* ），通常是先定义一个 *接口* ，像这样：
+&emsp;&emsp;*Lambda表达式* 在 *Python*、*JavaScript*、*Lua* 等弱类型语言中可以直接作为一个普通变量，在*C++*中可以作为特定类型的函数指针（使用auto作为指针变量的类型即可自动推断类型），在 *C#* 可以作为一个特定类型的委托变量，而在 *Java 8* 中，*Lambda表达式* 实际上是一个符合特定条件的 *接口* 的实现。其实在过去版本的 *Java* 中，如果我们想像传递变量那样传递一个 *函数* （或者叫 *方法* ），通常是先定义一个 *接口* ，像这样：
 ```
 public interface MyFunction { 
     int exec(int a, int b);  
@@ -46,17 +46,17 @@ MyFunction add = new MyFunction () {
     }
 };
 ```
-&emsp;&emsp;这个 `add` 变量（或者叫*对象*）的 `exec` 就是我们要传递的函数，我们可以通过传递 `increment` 变量来传递这个函数。现在，在*Java 8*中，你可以不用修改接口定义，直接用 *Lambda表达式* 这样写：
+&emsp;&emsp;这个 `add` 变量（或者叫*对象*）的 `exec` 就是我们要传递的函数，我们可以通过传递 `add` 变量来传递这个函数。现在，在*Java 8*中，你可以不用修改接口定义，直接用 *Lambda表达式* 这样写：
 ```
-MyFunction increment = (a, b) -> a + b;
+MyFunction add = (a, b) -> a + b;
 ```
 &emsp;&emsp;也可以这样写：
 ```
-MyFunction increment = (int a, int b) -> a + b;
+MyFunction add = (int a, int b) -> a + b;
 ```
 &emsp;&emsp;或者这样写：
 ```
-MyFunction increment = (a, b) -> { 
+MyFunction add = (a, b) -> { 
     return a + b; 
 };
 ```
