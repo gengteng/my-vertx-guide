@@ -6,58 +6,58 @@
 
 JavaScript：
 ```
-function (i) {  
-    return i + 1; 
+function (a, b) {  
+    return a + b; 
 };
 ```
 Python：
 ```
-lambda i: i+1
+lambda a,b: a + b
 ```
 Lua：  
 ```
-function (i) 
-    return i + 1 
+function (a, b) 
+    return a + b 
 end
 ```
 C++： 
 ```
-[](int i) {
-    return i+1;
+[](int a, int b) {
+    return a + b;
 };
 ```
 
 C#：  
 ```
-i => i+1;
+(a, b) => a + b;
 ```
 &emsp;&emsp;*Lambda表达式* 在 *Python*、*JavaScript*、*Lua* 等弱类型语言中可以直接作为一个普通变量，在*C++*中可以作为特定类型的函数指针（使用auto作为指针变量的类型即可自动推断类型），在 *C#* 可以作为一个特定类型的委托变量，而在 *Java 8* 中，*Lambda表达式* 实际上一个复合特定条件的 *接口* 的实现。其实在过去版本的 *Java* 中，如果我们想像传递变量那样传递一个 *函数* （或者叫 *方法* ），通常是先定义一个 *接口* ，像这样：
 ```
 public interface MyFunction { 
-    int exec(int i);  
+    int exec(int a, int b);  
 }
 ```
 &emsp;&emsp;然后，我们再实现这个接口，像这样：
 ```
-MyFunction increment = new MyFunction () { 
+MyFunction add = new MyFunction () { 
     @Override
-    public int exec(int i) {
-        return i + 1; 
+    public int exec(int a, int b) {
+        return a + b; 
     }
 };
 ```
-&emsp;&emsp;这个 `increment` 变量（或者叫*对象*）的 `exec` 就是我们要传递的函数，我们可以通过传递 `increment` 变量来传递这个函数。现在，在*Java 8*中，你可以不用修改接口定义，直接用 *Lambda表达式* 这样写：
+&emsp;&emsp;这个 `add` 变量（或者叫*对象*）的 `exec` 就是我们要传递的函数，我们可以通过传递 `increment` 变量来传递这个函数。现在，在*Java 8*中，你可以不用修改接口定义，直接用 *Lambda表达式* 这样写：
 ```
-MyFunction increment = i -> i + 1;
+MyFunction increment = (a, b) -> a + b;
 ```
 &emsp;&emsp;也可以这样写：
 ```
-MyFunction increment = (int i) -> i + 1;
+MyFunction increment = (int a, int b) -> a + b;
 ```
 &emsp;&emsp;或者这样写：
 ```
-MyFunction increment = i -> { 
-    return i + 1; 
+MyFunction increment = (a, b) -> { 
+    return a + b; 
 };
 ```
 &emsp;&emsp;当然以前的写法也是完全可以的，不过我觉得能一行搞定的事你肯定不会用四行了。不过配合Lambda表达式使用的接口需要满足一个条件：
@@ -89,7 +89,7 @@ new Thread(arg -> {
 ```
 @FunctionalInterface
 public interface MyFunction {
-    int execute(int i);
+    int execute(int a, int b);
     int wtf(int i);
 }
 ```

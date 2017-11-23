@@ -32,13 +32,22 @@ public class MyHttpServerVerticle extends AbstractVerticle {
     }
 }
 ```
+> 注：*pom.xml* 文件中要添加依赖：
+> ```
+> <dependency>
+>     <groupId>io.vertx</groupId>
+>     <artifactId>vertx-core</artifactId>
+>     <version>3.5.0</version>
+> </dependency>
+> ```
+
 &emsp;&emsp;这个例子首先创建了一个 *HTTP服务器*，为它设置了HTTP请求的 *处理函数*（Handler），并监听 *8080* 端口；在 *处理函数* 中，对于每个 *请求* 都直接返回一段文本；另外还设置了一个每1000毫秒触发一次的 *定时器* ，每次将文本的索引切换一下。
 
->&emsp;&emsp;注：这个例子里的两个 *处理函数* 都是以 *Lambda表达式* 的方式给出的，它们的类型分别是 `Handler<HttpServerRequest>` 和 `Handler<Long>` 。
+> 注：这个例子里的两个 *处理函数* 都是以 *Lambda表达式* 的方式给出的，它们的类型分别是 `Handler<HttpServerRequest>` 和 `Handler<Long>` 。
 
 &emsp;&emsp;*Vert.x* 中的基本模块叫做 *Verticle*，最常见的用法是定义一个类继承 `AbstractVerticle`，然后重载它的 `start` 方法，有些时候还需要重载 `stop` 方法。在一个 *Verticle* 实例被 *部署*（*deploy*）时，它的 `start` 方法被调用一次，在它被 *反部署*（*undeploy*，或者叫 *撤销*）时，它的 `stop` 方法被调用一次。
 
-&emsp;&emsp;在部署这个 *Verticle* 之前，我们需要首先实例化一个 `Vertx` 对象，像这样：
+&emsp;&emsp;在部署这个 *Verticle* 之前，我们首先需要实例化一个 `Vertx` 对象，像这样：
 ```
 Vertx vertx = Vertx.vertx();
 ```
@@ -56,6 +65,6 @@ vertx.deployVerticle(MyHttpServerVerticle.class.getName(), ar -> {
     }
 });
 ```
-&emsp;&emsp;这样我们的网站就发布成功了，可以在浏览器里输入 `http://localhost:8080/` 可以看到返回的文本。
+&emsp;&emsp;如果部署成功，部署生成的 `deploymentID` 会被打印出来，如果部署失败，会打印异常的描述信息。如果端口没被占用，我们的网站应该就发布成功了，在浏览器里打开 `http://localhost:8080/` 即可看到返回的文本。
 
 &emsp;&emsp;我们之前有提到Vert.x是事件驱动的，那么我们回顾一下之前写的代码，看看具体体现在哪。我们目前写的所有代码，除了个别直接在内存中构造对象的简单函数，所有需要访问网络、IO、可能耗费较长时间的操作都不是我们直接处理的，我们写的每一个事件处理函数都是在当前Verticle接收到一个相应事件（Event）后异步调用的，而且，一个Verticle中的所有事件处理函数（Handler）都是运行在一个事件循环（EventLoop）中，即完全的单线程。由此引入了下面的一些概念。
