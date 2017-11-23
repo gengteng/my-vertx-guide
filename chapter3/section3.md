@@ -27,7 +27,7 @@
 * `Vertx.setTimer`
 * `NetSocket.handler`
 * `HttpClient.post`
-* 集群层面的 `SharedData.getLock`
+* `SharedData.getLock`
 * `Vertx.executeBlocking`
 
 &emsp;&emsp;它们会完成这些耗时操作并通知你结果，你只需要在 *处理函数* 中处理这个结果就可以了：
