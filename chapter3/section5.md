@@ -79,33 +79,33 @@ public interface Future<T> extends AsyncResult<T>, Handler<AsyncResult<T>> {
 我在 `Future<T>` 接口的实现 `FutureImpl<T>` 类里找到了这个：
 
 ```java
-@Override
-  public void handle(AsyncResult<T> asyncResult) {
-    if (asyncResult.succeeded()) {
-      complete(asyncResult.result());
-    } else {
-      fail(asyncResult.cause());
+    @Override
+    public void handle(AsyncResult<T> asyncResult) {
+        if (asyncResult.succeeded()) {
+            complete(asyncResult.result());
+        } else {
+            fail(asyncResult.cause());
+        }
     }
-  }
 ```
 &emsp;&emsp;没错，这里是它作为一个 *处理函数* `Handler<AsyncResult<T>>` 的实现，当它被调用时，就是在处理另一个 *异步结果* `AsyncResult<T>`，用另一个 *异步结果* 的状态和值来完成作为 *异步结果* `AsyncResult<T>` 的自己。
 
 &emsp;&emsp;我们再看一下刚刚在 *回调地狱* 里用的那几个 *Vert.x* 提供的 API 的定义：
 ```java
-// 写一段内容到新文件里
-FileSystem writeFile(String path, Buffer data, Handler<AsyncResult<Void>> handler);
+    // 写一段内容到新文件里
+    FileSystem writeFile(String path, Buffer data, Handler<AsyncResult<Void>> handler);
 
-// 建立与某个地址的Socket连接
-NetClient connect(int port, String host, Handler<AsyncResult<NetSocket>> connectHandler);
+    // 建立与某个地址的Socket连接
+    NetClient connect(int port, String host, Handler<AsyncResult<NetSocket>> connectHandler);
 
-// 使用Socket发送一个文件
-NetSocket sendFile(String filename, Handler<AsyncResult<Void>> resultHandler)
+    // 使用Socket发送一个文件
+    NetSocket sendFile(String filename, Handler<AsyncResult<Void>> resultHandler)
 
-// 复制一个文件到另一个位置
-FileSystem copy(String from, String to, Handler<AsyncResult<Void>> handler);
+    // 复制一个文件到另一个位置
+    FileSystem copy(String from, String to, Handler<AsyncResult<Void>> handler);
 
-// 删除一个文件
-FileSystem delete(String path, Handler<AsyncResult<Void>> handler);
+    // 删除一个文件
+    FileSystem delete(String path, Handler<AsyncResult<Void>> handler);
 ```
 &emsp;&emsp;我们还可以继续罗列更多的 *Vert.x* 提供的 API，只要可以，它们的最后一个参数总是 `Handler<AsyncResult<T>>`，所以我们按照文档中的方法实例化一个 `Future` 对象：
 ```java
