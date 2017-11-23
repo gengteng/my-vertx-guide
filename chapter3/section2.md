@@ -41,13 +41,13 @@ public class MyHttpServerVerticle extends AbstractVerticle {
 > </dependency>
 > ```
 
-&emsp;&emsp;这个例子首先创建了一个 *HTTP服务器*，为它设置了HTTP请求的 *处理函数*（Handler），并监听 *8080* 端口；在 *处理函数* 中，对于每个 *请求* 都直接返回一段文本；另外还设置了一个每1000毫秒触发一次的 *定时器* ，每次将文本的索引切换一下。
+&emsp;&emsp;这个例子首先创建了一个 *HTTP服务器*，为它设置了 *HTTP请求* 的 *处理函数*（Handler），并监听 *8080* 端口；在 *HTTP请求* 的 *处理函数* 中，对于每个 *请求* 都直接返回一段文本；另外还设置了一个每1000毫秒触发一次的 *定时器* ，每次将文本的索引切换一下。
 
 > 注：这个例子里的两个 *处理函数* 都是以 *Lambda表达式* 的方式给出的，它们的类型分别是 `Handler<HttpServerRequest>` 和 `Handler<Long>` 。
 
 &emsp;&emsp;*Vert.x* 中的基本模块叫做 *Verticle*，最常见的用法是定义一个类继承 `AbstractVerticle`，然后重载它的 `start` 方法，有些时候还需要重载 `stop` 方法。在一个 *Verticle* 实例被 *部署*（*deploy*）时，它的 `start` 方法被调用一次，在它被 *反部署*（*undeploy*，或者叫 *撤销*）时，它的 `stop` 方法被调用一次。
 
-&emsp;&emsp;在部署这个 *Verticle* 之前，我们首先需要实例化一个 `Vertx` 对象，像这样：
+&emsp;&emsp;好的，现在我们 *Verticle* 已经写好了，应该怎么部署呢？首先，我们需要实例化一个 `Vertx` 对象，像这样：
 ```
 Vertx vertx = Vertx.vertx();
 ```
@@ -65,12 +65,12 @@ vertx.deployVerticle(MyHttpServerVerticle.class.getName(), ar -> {
     }
 });
 ```
-&emsp;&emsp;这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`，`AsyncResult` 对象代表了一个异步操作的结果，在异步操作成功时，它保存了特定类型的结果，我们可以通过 `result` 方法获取这个结果；在异步操作失败时，它保存了导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
+&emsp;&emsp;这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`，`AsyncResult` 对象代表了一个异步操作的结果，在异步操作成功时，它会保存特定类型的结果，我们可以通过 `result` 方法获取这个结果；在异步操作失败时，它会保存导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
 &emsp;&emsp;在上面的代码中，如果部署成功，部署生成的 `deploymentID` 会被打印出来，如果部署失败，会打印异常的描述信息。如果端口没被占用，我们的网站应该就发布成功了，在浏览器里打开
 
-> `http://localhost:8080/`
+> http://localhost:8080/
 
 即可看到返回的文本。
 
 &emsp;&emsp;我们之前有提到Vert.x是事件驱动的，那么我们回顾一下之前写的代码，看看具体体现在哪。  
-&emsp;&emsp;我们目前写的所有代码，除了个别直接在内存中构造对象的简单函数，所有需要访问网络、IO、可能耗费较长时间的操作都不是我们直接处理的，我们写的每一个事件处理函数都是在当前Verticle接收到一个相应事件（Event）后异步调用的，而且，一个Verticle中的所有事件处理函数（Handler）都是运行在一个事件循环（EventLoop）中，即完全的单线程。由此引入了下面的一些概念。
+&emsp;&emsp;我们目前写的所有代码，所有需要访问网络、IO、可能耗费较长时间的操作都不是我们直接执行的，而是由 Vert.x API 交由操作系统或者其他适合的线程执行的；在这些耗时操作执行完毕后，执行线程会通过 *事件（Event）* 通知调用者线程，也就是我们的 *Verticle* 所在线程；我们写的每一个 *事件处理函数* 都是在当前 *Verticle* 接收到一个相应 *事件* 后调用的，而且，一个 *Verticle* 中的所有事件处理函数（Handler）都是运行在一个 *事件循环（EventLoop）* 中，即我们写的代码是完全的单线程。由此引入了下面的一些概念。

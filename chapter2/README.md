@@ -6,7 +6,7 @@
 
 > &emsp;&emsp;[2. How the Actor Model Meets the Needs of Modern, Distributed Systems](https://doc.akka.io/docs/akka/current/guide/actors-intro.html)
 
-&emsp;&emsp;第一篇文章 *提出了一些现存的问题* ，第二篇文章讲 *参与者模型* （也就是 *Vert.x* 和 *Akka* 实现的模型）是 *如何解决这些问题* 的，我给大家依次总结下要点，有兴趣的同事可以自己阅读一下。
+&emsp;&emsp;第一篇文章提出了一些当代计算机系统在开发多线程应用时的问题 ，第二篇文章主要介绍 *参与者模型* （也就是 *Vert.x* 和 *Akka* 实现的模型）是 *如何解决这些问题* 的。我给大家依次总结下要点，有兴趣的同事可以自己仔细阅读一下。
 
 &emsp;&emsp;第一篇先讲了传统 *Java* 面向对象的多线程模型的缺点：
 

@@ -64,7 +64,7 @@ MyFunction add = (a, b) -> {
 
 > **除静态方法和默认方法外，该接口只有一个抽象方法。**
 
-&emsp;&emsp;这是*一个接口能用来定义一个Lambda表达式变量*的充分必要条件，而那个抽象方法名是什么并不重要（你都是我的唯一了，我还能找不到你?）。所以，*Java*原有的很多只有单个抽象方法的接口都可以写成Lambda表达式了，比如 `Runnable`，以前我们启动一个新线程运行一段代码会这样写：
+&emsp;&emsp;这是*一个接口能用来定义一个Lambda表达式变量*的充分必要条件，而那个抽象方法名是什么并不重要（你都是我的唯一了，我还能找不到你?）。这样的接口也被称为函数接口。所以，*Java*原有的很多只有单个抽象方法的接口都可以写成Lambda表达式了，比如 `Runnable`，以前我们启动一个新线程运行一段代码会这样写：
 ```
 new Thread(new Runnable() { 
     @Override 
@@ -85,7 +85,7 @@ new Thread(arg -> {
     // blah...blah... 
 }).start();
 ```
-&emsp;&emsp;*Java 8*还提供了一个注解，`@FunctionalInterface` ，这个注解用来加在一个接口定义上，它会检查上面那个*充分必要条件*，如果不满足，比如：
+&emsp;&emsp;*Java 8*还提供了一个注解，`@FunctionalInterface` ，这个注解用来加在一个函数接口定义上，它会检查上面那个*充分必要条件*，如果不满足，比如：
 ```
 @FunctionalInterface
 public interface MyFunction {
@@ -96,7 +96,7 @@ public interface MyFunction {
 &emsp;&emsp;编译器将会报错：
 > MyFunction is not a functional interface.
 
-&emsp;&emsp;这个注解仅仅是一种约束和对调用者的提示，虽然不写这个注解仍然可以用做 *Lambda表达式* 的类型，但是如果这个接口的确是准备作为 *Lambda表达式* 类型，那么写上是个比较好的习惯。大家可以看一下 *Java* 原有的 `Runable`、`Callable`、`Comparator` 接口，都已经加上了 `@FunctionalInterface` 注解。在*Vert.x*中，通常不需要你自己定义函数接口，基本上只需要用到它定义好的事件处理函数的接口 `Handler<E>`：
+&emsp;&emsp;这个注解仅仅是一种约束和对调用者的提示，虽然函数接口不写这个注解仍然可以用做 *Lambda表达式* 的类型，但是如果这个接口的确是一个函数接口，那么写上是个比较好的习惯。大家可以看一下 *Java* 原有的 `Runable`、`Callable`、`Comparator` 接口，都已经加上了 `@FunctionalInterface` 注解。在 *Vert.x* 中，通常不需要你自己定义函数接口，基本上只需要用到它定义好的 *事件处理函数* （以下简称 *处理函数*）的接口 `Handler<E>`：
 
 ```
 @FunctionalInterface
@@ -104,7 +104,7 @@ public interface Handler<E> {
     void handle(E event);
 }
 ```
-&emsp;&emsp;另外，*Java 8* 本身也提供了 `Consumer、Predicate、Function` 等很多函数接口，可以按照需要使用。
+&emsp;&emsp;另外，*Java 8* 本身也提供了 `Consumer、Predicate、Function` 等很多函数接口。
 
 
 
