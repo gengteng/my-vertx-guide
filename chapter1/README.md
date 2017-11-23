@@ -14,4 +14,4 @@
 
 &emsp;&emsp;总结一下，*Vert.x*是一个*高效的、轻量的、灵活的、支持多语言的、通用性强的工具包*，如图（误）：
 
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;![瑞士军刀图片](sak.jpg)
+## <center> ![瑞士军刀图片](sak.jpg) </center>
