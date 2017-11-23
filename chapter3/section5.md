@@ -72,7 +72,9 @@ public interface Future<T> extends AsyncResult<T>, Handler<AsyncResult<T>> {
 }
 ```
 
-&emsp;&emsp;它是一个泛型接口，继承自 *异步结果* `AsyncResult<T>` 和 *异步结果处理函数* `Handler<AsyncResult<T>>`；我们前面介绍过 *异步结果* 对象可以保存异步操作的状态（未完成、成功或失败），以及提供结果和异常的获取方法，`Future<T>` 继承自它，表明 `Future<T>` 也有这些特性；同时，不同与 *异步结果* `AsyncResult<T>` 只能读取状态和结果，它还提供了 `complete` 方法和 `fail` 方法，使其可以从外部被完成；但是，它同时还继承自 *异步结果处理函数* `Handler<AsyncResult<T>>`，是说一个 `Future<T>` 对象同时还是一个函数？它作为一个函数，要处理的这个 *异步结果* `AsyncResult<T>` 又是哪来的呢？
+&emsp;&emsp;它是一个泛型接口，继承自 *异步结果* `AsyncResult<T>` 和 *异步结果处理函数* `Handler<AsyncResult<T>>`；我们前面介绍过 *异步结果* 对象可以保存异步操作的状态（未完成、成功或失败），以及提供结果和异常的获取方法，`Future<T>` 继承自它，表明 `Future<T>` 也有这些特性；同时，不同于只能读取状态和结果的 `AsyncResult<T>`，它还提供了 `complete` 方法和 `fail` 方法，使其可以从外部被完成；
+
+&emsp;&emsp;但是，它同时还继承自 *异步结果处理函数* `Handler<AsyncResult<T>>` 是怎么回事？一个 `Future<T>` 对象同时还是一个函数？它作为一个函数，要处理的这个 *异步结果* `AsyncResult<T>` 又是哪来的呢？
 
 我在 `Future<T>` 接口的实现 `FutureImpl<T>` 类里找到了这个：
 
