@@ -23,12 +23,21 @@ public class MyHttpServerVerticle extends AbstractVerticle {
             req.response()
                 .putHeader(HttpHeaders.CONTENT_TYPE, "text/plain")
                 .end(ARRAY[index]);
-        }).listen(8080);
-		
+        }).listen(8080, ar -> {
+            if (ar.succeeded()) {
+                System.out.println("HTTP server started");
+            } else {
+                System.out.println("HTTP server error: " + ar.cause().getMessage());
+            }
+        });
+
         vertx.setPeriodic(1000, timerId -> {
             index = index + 1;
             index = index % ARRAY.length;
+            System.out.println("current index: " + index);
         });
+
+        System.out.println("MyHttpServerVerticle started.");
     }
 }
 ```
@@ -42,9 +51,9 @@ public class MyHttpServerVerticle extends AbstractVerticle {
 > </dependency>
 > ```
 
-&emsp;&emsp;这个例子首先创建了一个 *HTTP服务器*，为它设置了 *HTTP请求* 的 *处理函数*（Handler），并监听 *8080* 端口；在 *HTTP请求* 的 *处理函数* 中，对于每个 *请求* 都直接返回一段文本；另外还设置了一个每1000毫秒触发一次的 *定时器* ，每次将文本的索引切换一下。
+&emsp;&emsp;这个例子首先创建了一个 *HTTP服务器*，为它设置了 *HTTP请求* 的 *处理函数*（Handler），对于每个 *请求* 都直接返回一段文本；然后监听 *8080* 端口，为监听结果设置 *处理函数*，监听成功则打印 “*HTTP服务器* 启动成功”，监听失败则打印相应的异常信息；另外还设置了一个每1000毫秒触发一次的 *定时器* ，每次触发将文本的索引切换一下，并打印新的索引；在做完这一切之后，打印 “`MyHttpServerVerticle` 已启动”。
 
-> 注：这个例子里的两个 *处理函数* 都是以 *Lambda表达式* 的方式给出的，它们的类型分别是 `Handler<HttpServerRequest>` 和 `Handler<Long>` 。
+> 注：这个例子里的三个 *处理函数* 都是以 *Lambda表达式* 的方式给出的，它们的类型分别是 `Handler<HttpServerRequest>`、`Handler<AsyncResult<HttpServer>>` 和 `Handler<Long>` 。
 
 &emsp;&emsp;*Vert.x* 中的基本模块叫做 *Verticle*，最常见的用法是定义一个类继承 `AbstractVerticle`，然后重载它的 `start` 方法，有些时候还需要重载 `stop` 方法。在一个 *Verticle* 实例被 *部署*（*deploy*）时，它的 `start` 方法被调用一次，在它被 *反部署*（*undeploy*，或者叫 *撤销*）时，它的 `stop` 方法被调用一次。
 
@@ -52,12 +61,7 @@ public class MyHttpServerVerticle extends AbstractVerticle {
 ```java
 Vertx vertx = Vertx.vertx();
 ```
-&emsp;&emsp;通常一个程序只需要实例化一个 `Vertx` 对象。然后，像这样部署一个Verticle：
-```java
-vertx.deployVerticle(MyHttpServerVerticle.class.getName());
-```
-&emsp;&emsp;你还可以用这个 `Vertx` 实例部署更多 *Verticle* 类。如果你想获得部署结果，可以这样写：
-
+&emsp;&emsp;通常一个程序只需要实例化一个 `Vertx` 对象。然后，像这样部署一个 *Verticle*：
 ```java
 vertx.deployVerticle(MyHttpServerVerticle.class.getName(), ar -> {
     if (ar.succeeded()) {
@@ -67,7 +71,9 @@ vertx.deployVerticle(MyHttpServerVerticle.class.getName(), ar -> {
     }
 });
 ```
-&emsp;&emsp;这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`。`AsyncResult<T>` 对象代表了一个异步操作的结果（以下简称 *异步结果*），下面是它的定义：
+&emsp;&emsp;如果有需要，你还可以用这个 `Vertx` 实例继续部署更多的 *Verticle*。这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`。到目前为止，我们已经两次看见以 `AsyncResult<T>` 为参数的 *处理函数* 了，它是干什么的呢？
+
+&emsp;&emsp;一个 `AsyncResult<T>` 对象代表了一次异步操作的结果（以下简称 *异步结果*），下面是它的定义：
 
 ```java
 public interface AsyncResult<T> {
@@ -84,10 +90,16 @@ public interface AsyncResult<T> {
     // 其他方法...
 }
 ```
-在异步操作完成时，它会作为 *事件* 的参数被传递给我们编写的 *处理函数* 处理；如果异步操作成功，它会保存类型为 `T` 的结果，我们可以通过 `result` 方法获取这个结果；如果异步操作失败，它会保存导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
-&emsp;&emsp;在上面部署 *Verticle* 的代码中，如果部署成功，部署生成的 `deploymentID` 会被打印出来，如果部署失败，异常的描述信息会被打印出来。
+&emsp;&emsp;在异步操作完成时，它会作为参数被传递给我们编写的 *处理函数* 处理；如果异步操作成功，它会保存类型为 `T` 的结果，我们可以通过 `result` 方法获取这个结果；如果异步操作失败，它会保存导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
+&emsp;&emsp;在上面部署 *Verticle* 的代码中，如果部署成功，部署生成的 `deploymentID`（一个UUID） 会被打印出来，如果部署失败，异常的描述信息会被打印出来。
 
 &emsp;&emsp;如果端口没被占用，我们的网站应该就发布成功了，在浏览器里打开 `http://localhost:8080/` 即可看到返回的文本。
 
-&emsp;&emsp;我们之前有提到Vert.x是事件驱动的，那么我们回顾一下之前写的代码，看看具体体现在哪。  
+&emsp;&emsp;我们之前有提到Vert.x是事件驱动，异步无阻塞的，那么我们回顾一下这个 *HTTP服务器* 样例代码，看看具体体现在哪。
+
+&emsp;&emsp;首先，我们先探讨，在一开始的样例中，
+
 &emsp;&emsp;我们目前写的所有代码，所有需要访问网络、IO、可能耗费较长时间的操作都不是我们直接执行的，而是由 Vert.x API 交由操作系统或者其他适合的线程执行的；在这些耗时操作执行完毕后，执行线程会通过 *事件（Event）* 通知调用者线程，也就是我们的 *Verticle* 所在线程；我们写的每一个 *事件处理函数* 都是在当前 *Verticle* 接收到一个相应 *事件* 后调用的，而且，一个 *Verticle* 中的所有事件处理函数（Handler）都是运行在一个 *事件循环（EventLoop）* 中，即我们写的代码是完全的单线程。由此引入了下面的一些概念。
+
+//TODO
+<center><img src="eventloop.jpg"></img></center>

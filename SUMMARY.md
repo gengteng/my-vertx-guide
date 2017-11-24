@@ -1,6 +1,6 @@
 # Summary
 
-* [介绍](README.md)
+* [简介](README.md)
 * [0. 开场白](chapter0/README.md)
 * [1. 什么是 Vert.x ?](chapter1/README.md)
 * [2. 为什么要用 Vert.x ?](chapter2/README.md)

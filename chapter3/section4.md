@@ -15,4 +15,4 @@ vertx.deployVerticle(MyHttpServerVerticle.class.getName(),
 &emsp;&emsp;上面插了一段单个 *Verticle* 利用多核 CPU 横向扩展的介绍，下面开始回答关于 “真 · 多个 *Verticle*” 的通信问题。  
 &emsp;&emsp;*Vert.x* 模块间通信使用的是 *事件总线（EventBus）* 。在每一个 *Vert.x* 实例中，都存在一个唯一的 *事件总线（EventBus）* 实例，可以通过 `vertx.eventBus()` 获得。作为 ***Vert.x* 的神经系统**，*事件总线* 允许应用的各个部分——无论这些部分是用哪种语言写的、是否在一个 *Vert.x* 实例中——都可以通过它进行通信。
 
-&emsp;&emsp;
+&emsp;&emsp;// TODO
