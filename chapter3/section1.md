@@ -30,7 +30,8 @@ C#：
 ```C#
 (a, b) => a + b;
 ```
-&emsp;&emsp;*Lambda表达式* 在 *Python*、*JavaScript*、*Lua* 等弱类型语言中可以直接作为一个普通变量，在*C++*中可以作为特定类型的函数指针（使用auto作为指针变量的类型即可自动推断类型），在 *C#* 可以作为一个特定类型的委托变量，而在 *Java 8* 中，*Lambda表达式* 实际上就是一个 *匿名内部类*。
+&emsp;&emsp;*Lambda表达式* 在 *Python*、*JavaScript*、*Lua* 等弱类型语言中可以直接作为一个普通变量，在 <em>C++</em> 中可以作为特定类型的函数指针（使用auto作为指针变量的类型即可自动推断类型），在 *C#* 可以作为一个特定类型的委托变量，而在 *Java 8* 中，*Lambda表达式* 实际上就是一个 *匿名内部类*。
+
 &emsp;&emsp;什么是匿名内部类呢？在过去版本的 *Java* 中，如果我们想像传递变量那样传递一个 *函数* （或者叫 *方法* ），通常是先定义一个 *接口* ，像这样：
 ```java
 public interface MyFunction { 
@@ -48,7 +49,7 @@ MyFunction add = new MyFunction () {
 ```
 &emsp;&emsp;这个 `add` 变量（或者叫*对象*）的 `exec` 就是我们要传递的函数，我们可以通过传递 `add` 变量来传递这个函数，而这个对接口的实现就叫做 *匿名内部类*。
 
-&emsp;&emsp;而现在，在*Java 8*中，你可以不用修改接口定义，直接用 *Lambda表达式* 这样写：
+&emsp;&emsp;现在，在*Java 8*中，你可以不用修改接口定义，直接用 *Lambda表达式* 这样写：
 ```java
 MyFunction add = (a, b) -> a + b;
 ```
