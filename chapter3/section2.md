@@ -31,13 +31,15 @@ public class MyHttpServerVerticle extends AbstractVerticle {
             }
         });
 
-        vertx.setPeriodic(1000, timerId -> {
-            index = index + 1;
-            index = index % ARRAY.length;
-            System.out.println("current index: " + index);
-        });
+        vertx.setPeriodic(1000, this::rotate);
 
         System.out.println("MyHttpServerVerticle started.");
+    }
+
+    public void rotate(long timerId) {
+        index = index + 1;
+        index = index % ARRAY.length;
+        System.out.println("current index: " + index);
     }
 }
 ```
@@ -51,7 +53,7 @@ public class MyHttpServerVerticle extends AbstractVerticle {
 > </dependency>
 > ```
 
-&emsp;&emsp;这个例子首先创建了一个 *HTTP服务器*，为它设置了 *HTTP请求* 的 *处理函数*（Handler），对于每个 *请求* 都直接返回一段文本；然后监听 *8080* 端口，为监听结果设置 *处理函数*，监听成功则打印 “*HTTP服务器* 启动成功”，监听失败则打印相应的异常信息；另外还设置了一个每1000毫秒触发一次的 *定时器* ，每次触发将文本的索引切换一下，并打印新的索引；在做完这一切之后，打印 “`MyHttpServerVerticle` 已启动”。
+&emsp;&emsp;这个例子首先创建了一个 *HTTP服务器*，为它设置了 *HTTP请求* 的 *处理函数*（Handler），对于每个 *请求* 都直接返回一段文本；然后监听 *8080* 端口，为监听结果设置 *处理函数*，监听成功则打印 “*HTTP服务器* 启动成功”，监听失败则打印相应的异常信息；另外还设置了一个每1000毫秒触发一次的 *定时器* ，每次触发将文本的索引切换一下，并打印新的索引，这里利用了之前提到的 *η转换*；在做完这一切之后，打印 “`MyHttpServerVerticle` 已启动”。
 
 > 注：这个例子里的三个 *处理函数* 都是以 *Lambda表达式* 的方式给出的，它们的类型分别是 `Handler<HttpServerRequest>`、`Handler<AsyncResult<HttpServer>>` 和 `Handler<Long>` 。
 
