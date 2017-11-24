@@ -1,6 +1,6 @@
 # 3.1 *Java 8* 的 *Lambda表达式*
 
-&emsp;&emsp;*Vert.x*从版本3（当前最新*Vert.x*版本为3.5.0）开始就需要使用*Java 8*,并且大量使用了*Lambda表达式*这个*Java 8*的新特性。所以在真正介绍怎么使用*Vert.x*之前，我先介绍一下*Java 8*中的*Lambda表达式*。
+&emsp;&emsp;*Vert.x*从版本3（当前最新*Vert.x*版本为3.5.0）开始就需要使用*Java 8*,并且大量使用了*Lambda表达式*这个*Java 8*的新特性。所以在真正介绍怎么使用*Vert.x*之前，我们需要先了解一下*Java 8*中的*Lambda表达式*。
 
 &emsp;&emsp;*Lambda表达式*在很多语言中都有，其本质就是匿名函数：
 

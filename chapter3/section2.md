@@ -67,8 +67,27 @@ vertx.deployVerticle(MyHttpServerVerticle.class.getName(), ar -> {
     }
 });
 ```
-&emsp;&emsp;这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`。`AsyncResult<T>` 对象代表了一个异步操作的结果（以下简称 *异步结果*），在异步操作完成时，它会作为 *事件* 的参数被传递给我们编写的 *处理函数* 处理；如果异步操作成功，它会保存类型为 `T` 的结果，我们可以通过 `result` 方法获取这个结果；如果异步操作失败，它会保存导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
-&emsp;&emsp;在上面的代码中，如果部署成功，部署生成的 `deploymentID` 会被打印出来，如果部署失败，异常的描述信息会被打印出来。如果端口没被占用，我们的网站应该就发布成功了，在浏览器里打开
+&emsp;&emsp;这里需要说明一下，这里 *处理函数*（或者说 *Lambda表达式*）的类型是 `Handler<AsyncResult<String>>`，所以参数类型是 `AsyncResult<String>`。`AsyncResult<T>` 对象代表了一个异步操作的结果（以下简称 *异步结果*），下面是它的定义：
+
+```java
+public interface AsyncResult<T> {
+
+    // 获取异步操作的结果（成功时）
+    T result();
+
+    // 获取异步操作的异常（失败时）
+    Throwable cause();
+
+    // 判断是否成功
+    boolean succeeded();
+
+    // 其他方法...
+}
+```
+在异步操作完成时，它会作为 *事件* 的参数被传递给我们编写的 *处理函数* 处理；如果异步操作成功，它会保存类型为 `T` 的结果，我们可以通过 `result` 方法获取这个结果；如果异步操作失败，它会保存导致失败的异常，我们可以通过 `cause` 方法获取这个异常。  
+&emsp;&emsp;在上面部署 *Verticle* 的代码中，如果部署成功，部署生成的 `deploymentID` 会被打印出来，如果部署失败，异常的描述信息会被打印出来。
+
+&emsp;&emsp;如果端口没被占用，我们的网站应该就发布成功了，在浏览器里打开
 
 > http://localhost:8080/
 
