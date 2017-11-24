@@ -1,7 +1,10 @@
 # 4. 学习资料
 
-Vert.x官网：
-> http://vert.io/
+Vert.x 官网：
+> http://vertx.io/
+
+Vert.x 官方文档：
+> http://vertx.io/docs/
 
 Vert.x GitHub：
 > https://github.com/eclipse/vert.x
@@ -15,11 +18,15 @@ Vert.x Google 论坛：
 > [Building Reactive Microservices in Java](https://developers.redhat.com/download-manager/file/building_reactive_microservices_in_java.pdf)
 
 例子：
-> [官方例子GitHub库](https://github.com/vert-x3/vertx-examples)
+> 官方例子 *GitHub* 库： [vert-x3/vertx-examples](https://github.com/vert-x3/vertx-examples)
 
-> [与Vert.x相关的开源项目列表](https://github.com/vert-x3/vertx-awesome)
+> 与 *Vert.x* 相关的开源项目列表： [vert-x3/vertx-awesome](https://github.com/vert-x3/vertx-awesome)
 
-> [基于Vert.x的异步无阻塞FastDFS客户端实现](https://github.com/gengteng/vertx-fastdfs-client)
+> *Vert.x* 蓝图 - *Micro-Shop* 微服务： [sczyh30/vertx-blueprint-microservice](https://github.com/sczyh30/vertx-blueprint-microservice)
+
+> *Vert.x* 蓝图 - 待办事项服务： [sczyh30/vertx-blueprint-todo-backend](https://github.com/sczyh30/vertx-blueprint-todo-backend)
+
+> 基于 *Vert.x* 的异步无阻塞 *FastDFS* 客户端实现： [gengteng/vertx-fastdfs-client](https://github.com/gengteng/vertx-fastdfs-client)
 
 QQ群：
 > *Vert.x* 中国用户组：515203212

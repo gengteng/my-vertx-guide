@@ -106,7 +106,30 @@ public interface Handler<E> {
     void handle(E event);
 }
 ```
-&emsp;&emsp;另外，*Java 8* 本身也提供了 `Consumer、Predicate、Function` 等很多函数接口。
+&emsp;&emsp;加上 *Java 8* 本身也提供了 `Consumer<T>`、`Predicate<T>`、`Supplier<T>`、`Function<T,R>` 等很多 *函数接口*，我们基本不用自己定义 *函数接口*。
+
+&emsp;&emsp;最后，再介绍一个与 *Lambda表达式* 相关的 *Java 8* 新特性——η转换（eta-conversion）——一个 *函数接口* 对象还可以写成下面的形式：
+```java
+public class MyClass {
+
+    public static void main(String[] args) {
+
+        MyClass obj = new MyClass();
+        MyFunction sub = obj::sub;
+
+        MyFunction mul = MyClass::mul;
+    }
+
+    private int sub(int a, int b) {
+        return a + b;
+    }
+
+    public static int mul(int a, int b) {
+        return a * b;
+    }
+}
+```
+&emsp;&emsp;以上，就是我要分享的关于 *Java 8* 的新特性 *Lambda表达式* 的所有内容。
 
 
 
