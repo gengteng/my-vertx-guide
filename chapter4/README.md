@@ -1,5 +1,12 @@
 # 4. 参考资料
 
+原理与哲学：
+> [Why modern systems need a new programming model](https://doc.akka.io/docs/akka/current/guide/actors-motivation.html)
+
+> [How the Actor Model Meets the Needs of Modern, Distributed Systems](https://doc.akka.io/docs/akka/current/guide/actors-intro.html)
+
+> [响应式宣言（The Reactive Manifesto）](https://www.reactivemanifesto.org/zh-CN)
+
 Vert.x 官网：
 > http://vertx.io/
 
@@ -11,6 +18,9 @@ Vert.x GitHub：
 
 Vert.x Google 论坛：
 > https://groups.google.com/forum/m/?fromgroups#!forum/vertx
+
+书籍：
+> Java 8 函数式编程（[英]Richard Warburton）
 
 电子书：
 > [A gentle guide to asynchronous programming with Eclipse Vert.x for Java developers](http://vertx.io/docs/guide-for-java-devs/guide-for-java-devs.pdf)

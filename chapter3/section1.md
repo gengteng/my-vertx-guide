@@ -30,7 +30,7 @@ C#：
 ```C#
 (a, b) => a + b;
 ```
-&emsp;&emsp;*Lambda表达式* 在 *Python*、*JavaScript*、*Lua* 等弱类型语言中可以直接作为一个普通变量，在 <em>C++</em> 中可以作为特定类型的函数指针（使用auto作为指针变量的类型即可自动推断类型），在 *C#* 可以作为一个特定类型的委托变量，而在 *Java 8* 中，*Lambda表达式* 实际上就是一个 *匿名内部类*。
+&emsp;&emsp;*Lambda表达式* 在 *Python*、*JavaScript*、*Lua* 等弱类型语言中可以直接作为一个普通变量，在 <em>C++</em> 中可以作为特定类型的函数指针（使用auto作为指针变量的类型即可自动推断类型），在 *C#* 种可以作为一个特定类型的委托变量，而在 *Java 8* 中，*Lambda表达式* 实际上就是一个 *匿名内部类*。
 
 &emsp;&emsp;什么是匿名内部类呢？在过去版本的 *Java* 中，如果我们想像传递变量那样传递一个 *函数* （或者叫 *方法* ），通常是先定义一个 *接口* ，像这样：
 ```java
@@ -99,7 +99,7 @@ public interface MyFunction {
 &emsp;&emsp;编译器将会报错：
 > MyFunction is not a functional interface.
 
-&emsp;&emsp;这个注解仅仅是一种约束和对调用者的提示，虽然函数接口不写这个注解仍然可以用做 *Lambda表达式* 的类型，但是如果这个接口的确是一个函数接口，那么写上是个比较好的习惯。大家可以看一下 *Java* 原有的 `Runable`、`Callable`、`Comparator` 接口，都已经加上了 `@FunctionalInterface` 注解。在 *Vert.x* 中，通常不需要你自己定义函数接口，基本上只需要用到它定义好的 *事件处理函数* （以下简称 *处理函数*）的接口 `Handler<E>`：
+&emsp;&emsp;这个注解仅仅是一种约束和对调用者的提示，虽然函数接口不写这个注解仍然可以用做 *Lambda表达式* 的类型，但是如果这个接口的确是一个函数接口，那么写上是个比较好的习惯。大家可以看一下 *Java* 原有的 `Runable`、`Callable`、`Comparator` 接口，在 *Java 8* 中都加上了 `@FunctionalInterface` 注解。在 *Vert.x* 中，通常不需要你自己定义函数接口，基本上只需要用到它定义好的 *事件处理函数* （以下简称 *处理函数*）的接口 `Handler<E>`：
 
 ```java
 @FunctionalInterface
@@ -115,18 +115,33 @@ public class MyClass {
 
     public static void main(String[] args) {
 
+        int a = 4;
+        int b = 3;
+        
+        // sum 非静态方法需要通过实例获得
         MyClass obj = new MyClass();
-        MyFunction sub = obj::sub;
+        int c = ofSquare(obj::sum, a, b);
 
-        MyFunction mul = MyClass::mul;
+        // diff 静态方法通过类获得即可
+        int d = ofSquare(MyClass::diff, a, b);
+
+        // 打印计算结果
+        System.out.println(a + " 和 " + b + " 的平方和为 " + c + "，平方差为 " + d + "。");
     }
 
-    private int sub(int a, int b) {
+    // 先对两个值分别求平方，再按 func 计算
+    public static int ofSquare(MyFunction func, int a, int b) {
+        return func.exec(a * a, b * b);
+    }
+
+    // 求和
+    private int sum(int a, int b) {
         return a + b;
     }
 
-    public static int mul(int a, int b) {
-        return a * b;
+    // 求差（静态函数）
+    public static int diff(int a, int b) {
+        return a - b;
     }
 }
 ```

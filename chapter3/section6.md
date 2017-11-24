@@ -138,4 +138,6 @@ void getRecord(SQLClient client, String primaryKey, Handler<AsyncResult<ResultSe
 ```java
 Future<ResultSet> getRecord(SQLClient client, String primaryKey);
 ```
-&emsp;&emsp;这样的形式。
+&emsp;&emsp;这样的形式，这也是 *函数式编程* 中 *高阶函数* 的两种典型的形式。
+
+> 注：*高阶函数* 是指接收另外一个函数作为参数，或返回一个函数的函数。
