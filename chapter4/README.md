@@ -1,7 +1,7 @@
 # 4. 学习资料
 
 Vert.x官网：
-> http://vert.io/
+> http://vertx.io/
 
 Vert.x GitHub：
 > https://github.com/eclipse/vert.x
