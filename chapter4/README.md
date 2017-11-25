@@ -27,7 +27,7 @@ Vert.x Google 论坛：
 
 > [Building Reactive Microservices in Java](https://developers.redhat.com/download-manager/file/building_reactive_microservices_in_java.pdf)
 
-例子：
+GitHub 上的例子：
 > 官方例子 *GitHub* 库： [vert-x3/vertx-examples](https://github.com/vert-x3/vertx-examples)
 
 > 与 *Vert.x* 相关的开源项目列表： [vert-x3/vertx-awesome](https://github.com/vert-x3/vertx-awesome)
