@@ -114,7 +114,8 @@ public interface AsyncResult<T> {
 
 1. 我们目前写的所有代码，所有需要访问网络、读写磁盘等可能耗费较长时间的操作都不是我们在当前线程直接执行的；在样例中，耗时操作包括监听 *8080* 端口、等待 1s 钟以及等待一个合法的 HTTP 请求；在调用这些 *Vert.x API* 时，方法本身会立即返回，而实际操作会交由操作系统或适当的工作线程执行；这也是使用 *Vert.x API* 不会阻塞当前线程的原因；
 2. 在这些耗时操作执行完毕后，被调线程（callee）会通过 *事件（Event）* 通知调用者线程（caller），也就是我们的 *Verticle* 所在线程；我们写的每一个 *事件处理函数* 都是在当前 *Verticle* 接收到一个相应 *事件* 后调用的；
-3. 一个 *Verticle* 中的所有事件处理函数（Handler）都是运行在一个 *事件循环（EventLoop）* 中，即我们在 *Verticle* 中编写业务逻辑代码是完全的运行在单线程中的。由此引入了下面的一些概念。
+3. 一个 *Verticle* 中的所有事件处理函数（Handler）都是运行在一个 *事件循环（EventLoop）* 中，即我们在 *Verticle* 中编写业务逻辑代码是完全的运行在单线程中的。
 
-//TODO
-<center><img src="eventloop.jpg"></img></center>
+> <center><img src="eventloop.jpg"></img></center>
+
+&emsp;&emsp;由此引入下面几章的一些概念。
