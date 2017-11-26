@@ -25,7 +25,7 @@ public class MyHttpServerVerticle extends AbstractVerticle {
                 .end(ARRAY[index]);
         }).listen(8080, ar -> {
             if (ar.succeeded()) {
-                System.out.println("HTTP server started");
+                System.out.println("HTTP server started.");
             } else {
                 System.out.println("HTTP server error: " + ar.cause().getMessage());
             }
@@ -39,7 +39,7 @@ public class MyHttpServerVerticle extends AbstractVerticle {
     public void rotate(long timerId) {
         index = index + 1;
         index = index % ARRAY.length;
-        System.out.println("current index: " + index);
+        System.out.println("Current index: " + index);
     }
 }
 ```
@@ -99,9 +99,22 @@ public interface AsyncResult<T> {
 
 &emsp;&emsp;我们之前有提到Vert.x是事件驱动，异步无阻塞的，那么我们回顾一下这个 *HTTP服务器* 样例代码，看看具体体现在哪。
 
-&emsp;&emsp;首先，我们先探讨，在一开始的样例中，
+&emsp;&emsp;在上面的样例代码中，有三处通过 `System.out.println` 打印出与当前状态有关的信息；通常，运行这段程序，在控制台会按照以下顺序输出：
 
-&emsp;&emsp;我们目前写的所有代码，所有需要访问网络、IO、可能耗费较长时间的操作都不是我们直接执行的，而是由 Vert.x API 交由操作系统或者其他适合的线程执行的；在这些耗时操作执行完毕后，执行线程会通过 *事件（Event）* 通知调用者线程，也就是我们的 *Verticle* 所在线程；我们写的每一个 *事件处理函数* 都是在当前 *Verticle* 接收到一个相应 *事件* 后调用的，而且，一个 *Verticle* 中的所有事件处理函数（Handler）都是运行在一个 *事件循环（EventLoop）* 中，即我们写的代码是完全的单线程。由此引入了下面的一些概念。
+> MyHttpServerVerticle started.  
+> HTTP server started.  
+> Current index: 1  
+> Current index: 2  
+> Current index: 0  
+> Current index: 1  
+> Current index: 2  
+> ......  
+
+&emsp;&emsp;即 `start` 方法中的信息首先会被打印出来；如果监听 *8080* 端口的事件不超过 1s 的话（通常不会出现这种情况），关于端口监听的信息会被打印出来，然后是 1s 之后的索引信息。之所以有这样的顺序，是因为：
+
+1. 我们目前写的所有代码，所有需要访问网络、读写磁盘等可能耗费较长时间的操作都不是我们在当前线程直接执行的；在样例中，耗时操作包括监听 *8080* 端口、等待 1s 钟以及等待一个合法的 HTTP 请求；在调用这些 *Vert.x API* 时，方法本身会立即返回，而实际操作会交由操作系统或适当的工作线程执行；这也是使用 *Vert.x API* 不会阻塞当前线程的原因；
+2. 在这些耗时操作执行完毕后，被调线程（callee）会通过 *事件（Event）* 通知调用者线程（caller），也就是我们的 *Verticle* 所在线程；我们写的每一个 *事件处理函数* 都是在当前 *Verticle* 接收到一个相应 *事件* 后调用的；
+3. 一个 *Verticle* 中的所有事件处理函数（Handler）都是运行在一个 *事件循环（EventLoop）* 中，即我们在 *Verticle* 中编写业务逻辑代码是完全的运行在单线程中的。由此引入了下面的一些概念。
 
 //TODO
 <center><img src="eventloop.jpg"></img></center>
