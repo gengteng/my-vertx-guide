@@ -2,7 +2,7 @@
 
 &emsp;&emsp;什么技术方案都是有坑的。接下来我给大家介绍一个几乎所有人在用这种模型编程时都会遇到的坑，以及 *Vert.x* 提供的解决方法。
 
-在使用 *Vert.x* 的异步无阻塞 API 时，如果我们要保证一系列操作的执行顺序，通常不能像一般的框架那样简单的依次调用，而是依次把要调用的方法放在前一个方法的事件处理函数中，用 *回调函数* 用的比较多的同事一定遇到这种情况：
+在使用 *Vert.x* 的异步无阻塞 API 时，如果我们要保证一系列操作的执行顺序，通常不能像一般的框架那样简单的依次调用，而是依次把要调用的方法放在前一个方法的事件处理函数中，用 *回调函数* 用的比较多的同事一定遇到过这种情况：
 
 ```java
 String filePath = "X:\\path\\to\\file";
@@ -43,7 +43,7 @@ vertx.fileSystem().writeFile(filePath, buffer, write -> {
 });
 ```
 
-&emsp;&emsp;这段代码先是把一段内容写到一个新文件里，然后建立一个 *TCP* 连接把文件发过去，再把这个文件拷贝到另一个目录作为备份，最后把原文件删掉。回调函数一层层的嵌套，形成了这样的代码结构，这就是回调地狱。
+&emsp;&emsp;这段代码先是把一段内容写到一个新文件里，然后建立一个 *TCP* 连接把文件发过去，再把这个文件拷贝到另一个目录作为备份，最后把原文件删掉。回调函数一层层的嵌套，形成了这样的代码结构，这就是 *回调地狱*。
 
 &emsp;&emsp;如果是嵌套个两三层，其实还可以接受，如果业务流程比较长，这样的代码就很难看了。*Vert.x* 提供了四种方法解决这个问题：
 
@@ -52,9 +52,9 @@ vertx.fileSystem().writeFile(filePath, buffer, write -> {
 * Vert.x Async
 * Kotlin coroutine
 
-&emsp;&emsp;其中，除 `Future` 外的其他三种都需要额外增加依赖，其中 *Vert.x Rx* 是使用观察者模式实现的响应式接口，而 *Vert.x Async* 和 *Kotlin coroutine* 则是利用了“协程（Fiber/Coroutine）” 来实现像调用同步阻塞接口那样使用异步无阻塞接口。我今天只重点介绍使用 Vert.x 核心中提供的 `Future` 来解决回调地狱的方法，大家如果对其它的方法感兴趣可以找官网的文档和例子看一下。
+&emsp;&emsp;其中，除 `Future` 外的其他三种都需要额外增加依赖，其中 *Vert.x Rx* 是使用观察者模式实现的响应式接口，依赖于 *Reactive X*，而 *Vert.x Async* 和 *Kotlin coroutine* 则是利用了“协程（Fiber/Coroutine）”来实现像调用同步阻塞接口那样使用异步无阻塞接口。我今天只重点介绍使用 Vert.x 核心中提供的 `Future` 来解决回调地狱的方法，大家如果对其它的方法感兴趣可以找官网的文档和例子看一下。
 
-&emsp;&emsp;我们直接看 Future 的定义，下面只列出与我们要将的内容有关的部分：
+&emsp;&emsp;我们直接看 Future 的定义，下面只列出了与我们要介绍的内容有关的部分：
 
 ```java
 public interface Future<T> extends AsyncResult<T>, Handler<AsyncResult<T>> {
@@ -107,7 +107,7 @@ public interface Future<T> extends AsyncResult<T>, Handler<AsyncResult<T>> {
     // 删除一个文件
     FileSystem delete(String path, Handler<AsyncResult<Void>> handler);
 ```
-&emsp;&emsp;我们还可以继续罗列更多的 *Vert.x* 提供的 API，只要可以，它们的最后一个参数总是 `Handler<AsyncResult<T>>`，所以我们按照文档中的方法实例化一个 `Future` 对象：
+&emsp;&emsp;我们还可以继续罗列更多的 *Vert.x* API，它们的最后一个参数往往是 `Handler<AsyncResult<T>>`。我们先按照文档中的方法实例化一个 `Future` 对象，因为写文件的结果是 `Void`，所以我们实例化的是 `Future<Void>`：
 ```java
 Future<Void> futureWrite = Future.future();
 ```
@@ -179,12 +179,12 @@ futureDelete.setHandler(ar -> {
     }
 });
 ```
-&emsp;&emsp;看起来效果还不错，整齐多了，代码也不会随着业务流程长度而无限制缩进了。不过这样还是存在一些问题：
+&emsp;&emsp;看起来效果还不错，整齐多了，代码也不会随着业务流程长度而无限制缩进了。不过这样还是存在两个问题：
 
 > 1. 颠倒两个代码块的顺序，该程序仍然是可以运行的，这样一来没有顺序上的约束，很容易产生混乱的代码；  
 > 2. 异常处理存在大量重复代码。
 
-&emsp;&emsp;`Future` 还提供了一个用于链式调用的方法 `compose`，我们使用 `Future` 的 `compose` 方法再次重构这部分代码： 
+&emsp;&emsp;好在 `Future` 还提供了一个用于链式调用的方法 `compose`，我们使用 `Future` 的 `compose` 方法再次重构这部分代码： 
 ```java
 Future<Void> futureWrite = Future.future();
 Future<NetSocket> futureConnect = Future.future();
@@ -214,5 +214,5 @@ futureWrite.compose(v -> {
     }
 });
 ```
-&emsp;&emsp;除了最后一个 *回调函数* ，前面的所有 *回调函数* 的参数并不是一个 `AsyncResult<T>` 对象，而是我们期望的结果，即一个类型为 `T` 的对象；也就是说每次 `compose` 只处理上一步成功的情况，失败的异常会被传递到最后一个 *回调函数* 处理；这是不是有点像传统的 `try catch` 结构。  
+&emsp;&emsp;除了最后一个 *回调函数* ，前面的所有 *回调函数* 的参数并不是一个 `AsyncResult<T>` 对象，而是我们期望的结果，即一个类型为 `T` 的对象；也就是说每次 `compose` 只处理上一步成功的情况，失败的异常会被层层传递到最后一个 *回调函数* 处理——这是不是有点像传统的 `try catch` 结构。  
 &emsp;&emsp;好的，这几乎就是使用 `Future` 改造回调地狱的终极解决方案了，`compose` 方法还有另外一个重载实现，有兴趣的同事可以自己尝试写写看。
