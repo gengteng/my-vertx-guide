@@ -3,6 +3,7 @@
 &emsp;&emsp;讲完了茴香豆的茴字的几种写法，我们来正式跟 *Vert.x* 打个招呼。下面是参考官网主页上的例子写的一段样例代码：
 ```java
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpHeaders;
 
 public class MyHttpServerVerticle extends AbstractVerticle {
 	
