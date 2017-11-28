@@ -111,7 +111,7 @@ public interface Handler<E> {
 
 &emsp;&emsp;最后，再介绍一个与 *Lambda表达式* 相关的 *Java 8* 新特性——η转换（eta-conversion）——一个 *函数接口* 对象还可以写成下面的形式：
 ```java
-public class MyClass {
+public class EtaConversion {
 
     public static void main(String[] args) {
 
@@ -119,11 +119,11 @@ public class MyClass {
         int b = 3;
         
         // sum 非静态方法需要通过实例获得
-        MyClass obj = new MyClass();
+        EtaConversion obj = new EtaConversion();
         int c = ofSquare(obj::sum, a, b);
 
         // diff 静态方法通过类获得即可
-        int d = ofSquare(MyClass::diff, a, b);
+        int d = ofSquare(EtaConversion::diff, a, b);
 
         // 打印计算结果
         System.out.println(a + " 和 " + b + " 的平方和为 " + c + "，平方差为 " + d + "。");
